@@ -5357,7 +5357,7 @@ static u8 rtw_issue_addbareq_check(_adapter *padapter, struct xmit_frame *pxmitf
 	if (bmcst)
 		return _FALSE;
 
-	if ((pregpriv->wifi_spec == 1))
+	if (pregpriv->wifi_spec == 1)
 		return _TRUE;
 
 	if (pregistry->tx_quick_addba_req == 0) {

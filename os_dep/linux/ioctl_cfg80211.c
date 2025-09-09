@@ -236,23 +236,15 @@ u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, struct rtw_chan_def *rtw_chd
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
 	if (started) {
-#if defined(CONFIG_MLD_KERNEL_PATCH)
-		/* ToDo CONFIG_RTW_MLD */
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)) || defined(CONFIG_MLD_KERNEL_PATCH)
+		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, 0, false, 0);
+	#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
 		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, 0, false);
-#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0))
-
-		/* --- cfg80211_ch_switch_started_notfiy() ---
-		 *  A new parameter, bool quiet, is added from Linux kernel v5.11,
-		 *  to see if block-tx was requested by the AP. since currently,
-		 *  the API is used for station before connected in rtw_chk_start_clnt_join()
-		 *  the quiet is set to false here first. May need to refine it if
-		 *  called by others with block-tx.
-		 */
-
+	#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0))
 		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, false);
-#else
+	#else
 		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0);
-#endif
+	#endif
 		goto exit;
 	}
 #endif
@@ -260,12 +252,13 @@ u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, struct rtw_chan_def *rtw_chd
 	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
 		goto exit;
 
-#if (defined(CONFIG_MLD_KERNEL_PATCH) || (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2)))
-	/* ToDo CONFIG_RTW_MLD */
-	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0);
-#else
-	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef);
-#endif
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)) || defined(CONFIG_MLD_KERNEL_PATCH)
+		cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0, 0);
+	#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
+		cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0);
+	#else
+		cfg80211_ch_switch_notify(adapter->pnetdev, &chdef);
+	#endif
 
 #else
 	int freq = rtw_bch2freq(rtw_chdef->band, rtw_chdef->chan);

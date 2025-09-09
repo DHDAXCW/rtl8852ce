@@ -1,13 +1,19 @@
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
 EXTRA_CFLAGS += -O1
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 #EXTRA_CFLAGS += -O3
 #EXTRA_CFLAGS += -Wall
 #EXTRA_CFLAGS += -Wextra
 #EXTRA_CFLAGS += -Werror
 #EXTRA_CFLAGS += -pedantic
 #EXTRA_CFLAGS += -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
-
+EXTRA_CFLAGS += -Wno-implicit-fallthrough
 EXTRA_CFLAGS += -Wno-unused-variable
+EXTRA_CFLAGS += -Wno-implicit-function-declaration
+EXTRA_CFLAGS += -Wno-int-conversion
+EXTRA_CFLAGS += -Wno-return-type
+EXTRA_CFLAGS += -Wno-array-bounds
+EXTRA_CFLAGS += -Wno-self-assign
 #EXTRA_CFLAGS += -Wno-unused-value
 EXTRA_CFLAGS += -Wno-unused-label
 #EXTRA_CFLAGS += -Wno-unused-parameter
@@ -127,7 +133,7 @@ CONFIG_RTW_MBO = n
 CONFIG_RTKM ?= n
 ########################## Android ###########################
 # CONFIG_RTW_ANDROID - 0: no Android, 4/5/6/7/8/9/10/11/12 : Android version
-CONFIG_RTW_ANDROID = 0
+CONFIG_RTW_ANDROID = 14
 
 ifeq ($(shell test $(CONFIG_RTW_ANDROID) -gt 0; echo $$?), 0)
 EXTRA_CFLAGS += -DCONFIG_RTW_ANDROID=$(CONFIG_RTW_ANDROID)
@@ -189,7 +195,7 @@ CONFIG_LAYER2_ROAMING = y
 CONFIG_ROAMING_FLAG = 0x3
 
 ###################### Platform Related #######################
-CONFIG_PLATFORM_I386_PC = y
+CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_RTL8198D = n
 CONFIG_PLATFORM_ANDROID_X86 = n
 CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
@@ -201,7 +207,7 @@ CONFIG_PLATFORM_RTK16XXB = n
 CONFIG_PLATFORM_AML_S905 = n
 CONFIG_PLATFORM_AML_S905_L3A = n
 CONFIG_PLATFORM_HUANGLONG = n
-CONFIG_PLATFORM_ARM_ROCKCHIP = n
+CONFIG_PLATFORM_ARM_ROCKCHIP = y
 
 ########### CUSTOMER ################################
 
@@ -654,8 +660,8 @@ include $(wildcard $(DRV_PATH)/platform/*.mk)
 
 # Import platform specific compile options
 EXTRA_CFLAGS += -I$(src)/platform
-#_PLATFORM_FILES := platform/platform_ops.o
-OBJS += $(_PLATFORM_FILES)
+OBJS += platform/platform_ops.o
+OBJS += phl/pltfm_ops_linux.o
 
 ########### CUSTOMER ################################
 USER_MODULE_NAME ?=
